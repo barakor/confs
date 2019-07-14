@@ -33,6 +33,14 @@ zstyle :compinstall filename '/home/barakor/.zshrc'
 
 
 
+# Enable Ctrl-x-e to edit command line
+autoload -U edit-command-line
+# Emacs style
+zle -N edit-command-line
+bindkey '^xe' edit-command-line
+bindkey '^x^e' edit-command-line
+
+
 
 alias ls='ls --color=auto'
 alias ll='ls -l'
@@ -99,7 +107,7 @@ COMPLETION_WAITING_DOTS="true"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git virtualenv)
+plugins=(git virtualenv zsh-syntax-highlighting sublime screen kubectl)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -192,14 +200,10 @@ transfer() {
 
     # cleanup
     rm -f $tmpfile
+    echo "\n"
 }
 
-
-# svpn snx alias
-alias svpn='snx -s svpn.weizmann.ac.il -u'
-
-alias icat='kitty icat' 
-
+#list 5 bigest assets in current dir
 alias ducks='du -cks * | sort -rn | head'
 
-source "/home/barakor/.oh-my-zsh/custom/themes/spaceship.zsh-theme"
+eval $(thefuck --alias)
