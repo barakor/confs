@@ -1,0 +1,9 @@
+#!/bin/zsh
+function svenv {
+        source ~/.venvs/$1/bin/activate; 
+}
+function _svenv {
+	_arguments "1: :($(ls ~/.venvs))"
+}
+compdef _svenv svenv
+

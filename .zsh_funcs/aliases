@@ -1,0 +1,18 @@
+#!/bin/zsh
+
+alias notebooks='jupyter notebook --browser=firefox --notebook-dir=/home/barakor/workspace/notebooks'
+alias ntb='screen -S ntb -dm  zsh  -c  "source ~/.zshrc; svenv wor; jupyter notebook --browser=firefox --notebook-dir=/home/barakor/workspace/notebooks;"'
+
+
+# svpn snx alias
+alias svpn='snx -s svpn.weizmann.ac.il -u'
+
+alias icat='kitty icat' 
+
+alias ducks='du -cks * | sort -rn | head'
+
+
+# kubectl aliases
+ksetnamespace () { kubectl config set-context --current --namespace=$1; } 
+kgetcontexts () { kubectl config get-contexts; }
+
