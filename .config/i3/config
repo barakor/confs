@@ -375,7 +375,7 @@ set $ws11 "11:"
 # where you have to replace VGA-0/HDMI-0 with the names for your displays
 # you can get from xrandr command
 # use workspaces on different monitors
-set $monitor1 "DP1"
+set $monitor1 "DP2"
 set $monitor2 "DP3"
 set $monitor3 "eDP1"
 workspace $ws1 output $monitor2
@@ -393,9 +393,10 @@ workspace $ws10 output $monitor1
 assign [class="Xfce4-terminal"] $ws1
 assign [class="(?i)vscodium"] $ws2
 assign [class="(?i)firefox"] $ws3
+for_window [class="(?i)firefox"] move to workspace $ws3
 assign [class="TelegramDesktop"] $ws4
 assign [class="(?i)discord"] $ws4
-assign [class="(?i)spotify"] $ws5
+for_window [class="Spotify"] move to workspace $ws5
 assign [class="Steam"] $ws6
 assign [class="Thunderbird"] $ws7
 assign [class="Thunar"] $ws8
@@ -465,10 +466,13 @@ exec --no-startup-id dex --autostart --environment i3
 #exec --no-startup-id sh /usr/share/endeavouros/scripts/welcome --startdelay=3 
 
 # num lock activated
-#exec --no-startup-id numlockx on
+exec --no-startup-id numlockx on
 
 # configure multiple keyboard layouts and hotkey to switch (Alt+CAPSLOCK in this example)
 #exec --no-startup-id setxkbmap -layout 'us,sk' -variant altgr-intl,qwerty -option 'grp:alt_caps_toggle'
+# Set the keymap to either Hebrew or English
+exec setxkbmap us,il -option 'grp:alt_shift_toggle' ; pkill -SIGRTMIN+12 i3blocks
+bindsym Mod1+shift exec setxkbmap us,il -option 'grp:alt_shift_toggle' ; pkill -SIGRTMIN+12 i3blocks
 
 # start conky:
 #exec_always --no-startup-id conky
@@ -686,10 +690,6 @@ bindsym $mod+d exec rofi -modi drun -show drun \
 bindsym --release Caps_Lock exec pkill -SIGRTMIN+11 i3blocks
 bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
 
-
-# Set the keymap to either Hebrew or English
-exec setxkbmap us,il -option 'grp:alt_shift_toggle' ; pkill -SIGRTMIN+12 i3blocks
-bindsym Mod1+shift exec setxkbmap us,il -option 'grp:alt_shift_toggle' ; pkill -SIGRTMIN+12 i3blocks
 
 # disable touchscreen
 exec xinput disable $(xinput  | grep Touchscreen | cut -f 2 | cut -d = -f 2)

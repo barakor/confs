@@ -61,12 +61,12 @@ sub buttons {
     } elsif ($method eq 'playerctl') {
         if ($ENV{'BLOCK_BUTTON'} == 1) {
             system("playerctl $player_arg previous");
-            usleep(DELAY * 1000) if $BLOCK_INSTANCE eq SPOTIFY_STR;
+            usleep(DELAY * 100) if $BLOCK_INSTANCE eq SPOTIFY_STR;
         } elsif ($ENV{'BLOCK_BUTTON'} == 2) {
             system("playerctl $player_arg play-pause");
         } elsif ($ENV{'BLOCK_BUTTON'} == 3) {
             system("playerctl $player_arg next");
-            usleep(DELAY * 1000) if $BLOCK_INSTANCE eq SPOTIFY_STR;
+            usleep(DELAY * 100) if $BLOCK_INSTANCE eq SPOTIFY_STR;
         } elsif ($ENV{'BLOCK_BUTTON'} == 4) {
             system("playerctl $player_arg volume 0.01+");
         } elsif ($ENV{'BLOCK_BUTTON'} == 5) {
