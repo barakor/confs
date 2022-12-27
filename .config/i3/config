@@ -396,13 +396,15 @@ assign [class="(?i)firefox"] $ws3
 for_window [class="(?i)firefox"] move to workspace $ws3
 assign [class="TelegramDesktop"] $ws4
 assign [class="(?i)discord"] $ws4
+assign [class="(?i)Microsoft Teams - Preview"] $ws4
 for_window [class="Spotify"] move to workspace $ws5
+assign [class="vlc"] $ws5
 assign [class="Steam"] $ws6
 assign [class="Thunderbird"] $ws7
 assign [class="Thunar"] $ws8
 assign [class="Double Commander"] $ws8
 assign [class="doublecmd"] $ws8
-
+assign [class="(?i)virt-manager"] $ws11
 # Move Workspace to other screen
 bindsym $mod+shift+m move workspace to output left
 
@@ -693,3 +695,7 @@ bindsym --release Num_Lock  exec pkill -SIGRTMIN+11 i3blocks
 
 # disable touchscreen
 exec xinput disable $(xinput  | grep Touchscreen | cut -f 2 | cut -d = -f 2)
+
+# disable computer speaker (beeps)
+exec --no-startup-id xset -b
+
