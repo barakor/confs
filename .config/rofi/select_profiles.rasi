@@ -1,5 +1,6 @@
+
 configuration {
-    font:             "Noto Sans Regular 10";
+    font:             "MesloLGS NF 10";
     show-icons:       false;
     icon-theme:       "Qogir";
     scroll-method:    0;
@@ -23,7 +24,7 @@ window {
     /*x-offset:       850;*/
 }
 listview {
-    lines:   4;
+    // lines:   5;
     columns: 1;
 }
 element {
@@ -111,7 +112,7 @@ inputbar {
 }
 textbox-prompt-colon {
     expand:     false;
-    str:        "Set Audio Sink:";
+    // str:        "";
     margin:     0px 0.3em 0em 0em;
     text-color: @normal-foreground;
 }

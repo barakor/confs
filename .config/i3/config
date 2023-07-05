@@ -1,4 +1,6 @@
-font pango: Noto Sans Regular 12
+font pango: MesloLGS NF Regular 12
+
+# font pango: Noto Sans Regular 12
 
 # set the mod key to the winkey:
 set $mod Mod4
@@ -350,8 +352,8 @@ bindsym ctrl+Mod1+Left exec playerctl previous
 ## App shortcuts
 bindsym Print exec scrot ~/%Y-%m-%d-%T-screenshot.png && notify-send "Screenshot saved to ~/$(date +"%Y-%m-%d-%T")-screenshot.png"
 
-# Power Profiles menu switcher (rofi)
-bindsym $mod+Shift+p exec ~/.config/i3/scripts/power-profiles
+# Audio Sink menu switcher (rofi)
+bindsym $mod+Shift+p exec python ~/.config/i3/scripts/audio_sink_select.py
 
 ##########################################
 # configuration for workspace behaviour: #
@@ -392,10 +394,13 @@ workspace $ws10 output $monitor1
 # bind program to workspace and focus to them on startup:
 assign [class="Xfce4-terminal"] $ws1
 assign [class="(?i)vscodium"] $ws2
+assign [class="(?i)subl"] $ws2
 assign [class="(?i)firefox"] $ws3
 for_window [class="(?i)firefox"] move to workspace $ws3
 assign [class="TelegramDesktop"] $ws4
 assign [class="(?i)discord"] $ws4
+assign [class="(?i)signal"] $ws4
+assign [class="(?i)zoom"] $ws4
 assign [class="(?i)Microsoft Teams - Preview"] $ws4
 for_window [class="Spotify"] move to workspace $ws5
 assign [class="vlc"] $ws5
@@ -488,7 +493,7 @@ exec --no-startup-id ~/.screenlayout/default.sh
 exec --no-startup-id sleep 1 && feh --bg-fill /home/barakor/.config/i3/wallpapers/samus_zapper.jpg
 
 # set powersavings for display:
-exec --no-startup-id xset s 480 dpms 600 600 600
+exec --no-startup-id xset s 3600 dpms 3600 3600 3600
 
 # disable power saving (for example if using xscreensaver)
 #exec --no-startup-id xset -dpms
@@ -650,19 +655,19 @@ bar {
 
 # bindsym $mod+Shift+s exec --no-startup-id ~/.config/i3/monitor_select.sh
 
-set $screen_layout screen_layout: (i) INTERNAL, (e) EXTERNAL, (a) ALL, (c) CLONES 
-bindsym $mod+p mode "$screen_layout"
-mode "$screen_layout" {
-        bindsym i  exec --no-startup-id ~/.config/i3/scripts/monitor_select.sh INTERNAL
-        bindsym e  exec --no-startup-id ~/.config/i3/scripts/monitor_select.sh EXTERNAL
-        bindsym a  exec --no-startup-id ~/.config/i3/scripts/monitor_select.sh ALL
-        bindsym c  exec --no-startup-id ~/.config/i3/scripts/monitor_select.sh CLONES
-        bindsym Return mode "default"
-        bindsym Escape mode "default"
-}
+# set $screen_layout screen_layout: (i) INTERNAL, (e) EXTERNAL, (a) ALL, (c) CLONES 
+# bindsym $mod+p mode "$screen_layout"
+# mode "$screen_layout" {
+#         bindsym i  exec --no-startup-id ~/.config/i3/scripts/monitor_select.sh INTERNAL
+#         bindsym e  exec --no-startup-id ~/.config/i3/scripts/monitor_select.sh EXTERNAL
+#         bindsym a  exec --no-startup-id ~/.config/i3/scripts/monitor_select.sh ALL
+#         bindsym c  exec --no-startup-id ~/.config/i3/scripts/monitor_select.sh CLONES
+#         bindsym Return mode "default"
+#         bindsym Escape mode "default"
+# }
 
 
-
+bindsym $mod+p exec --no-startup-id python ~/.config/i3/scripts/monitor_select.py
 
 
 #####################################

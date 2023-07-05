@@ -1,40 +1,163 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# check for arg input
-if ! [ -z "$1" ] ; then
-        monitor_mode=$1
 
-# if we don't have a file, start at zero
-elif [ ! -f "/tmp/monitor_mode.dat" ] ; then
-        monitor_mode="INTERNAL"
+#######################################################################
+#                            BEGIN CONFIG                             #
+#######################################################################
 
-# otherwise read the value from the file
-else 
-        echo "WUT2" >> /tmp/monitor_mode.dat
-        current_mode=`cat /tmp/monitor_mode.dat`
+# Use a custom lock script
+#LOCKSCRIPT="i3lock-extra -m pixelize"
 
-        if [[ $current_mode = "ALL" ]]; then
-                monitor_mode="EXTERNAL"
-        elif [[ $current_mode = "EXTERNAL" ]]; then
-                monitor_mode="INTERNAL"
-        elif [[ $current_mode = "INTERNAL" ]]; then
-                monitor_mode="CLONES"
-        else
-                monitor_mode="ALL"
-        fi
+# Colors: FG (foreground), BG (background), HL (highlighted)
+FG_COLOR="#bbbbbb"
+BG_COLOR="#111111"
+HLFG_COLOR="#111111"
+HLBG_COLOR="#bbbbbb"
+BORDER_COLOR="#222222"
+
+# Options not related to colors
+ROFI_TEXT="Monitor Select:"
+#ROFI_OPTIONS=(-width -11 -location 0 -hide-scrollbar -bw 30 -color-window "#dd310027,#dd0310027,#dd310027" -padding 5)
+#ROFI_OPTIONS=(-width -18 -location 4 -hide-scrollbar -color-window "#cc310027,#00a0009a,#cc310027" -padding 5 -font "Sourcecode Pro Regular 10, FontAwesome 9")
+ROFI_OPTIONS=(-theme ~/.config/rofi/select_profiles.rasi)
+# Zenity options
+ZENITY_TITLE="Audio Sinks"
+ZENITY_TEXT="Set Default:"
+ZENITY_OPTIONS=(--column= --hide-header)
+
+#######################################################################
+#                             END CONFIG                              #
+#######################################################################
+
+# Whether to ask for user's confirmation
+enable_confirmation=false
+
+# Preferred launcher if both are available
+preferred_launcher="rofi"
+
+usage="$(basename "$0") [-h] [-c] [-p name] -- display a menu for shutdown, reboot, lock etc.
+
+where:
+    -h  show this help text
+    -c  ask for user confirmation
+    -p  preferred launcher (rofi or zenity)
+
+This script depends on:
+  - systemd,
+  - i3,
+  - rofi or zenity."
+
+# Check whether the user-defined launcher is valid
+launcher_list=(rofi zenity)
+function check_launcher() {
+  if [[ ! "${launcher_list[@]}" =~ (^|[[:space:]])"$1"($|[[:space:]]) ]]; then
+    echo "Supported launchers: ${launcher_list[*]}"
+    exit 1
+  else
+    # Get array with unique elements and preferred launcher first
+    # Note: uniq expects a sorted list, so we cannot use it
+    i=1
+    launcher_list=($(for l in "$1" "${launcher_list[@]}"; do printf "%i %s\n" "$i" "$l"; let i+=1; done \
+      | sort -uk2 | sort -nk1 | cut -d' ' -f2- | tr '\n' ' '))
+  fi
+}
+
+# Parse CLI arguments
+while getopts "hcp:" option; do
+  case "${option}" in
+    h) echo "${usage}"
+       exit 0
+       ;;
+    c) enable_confirmation=true
+       ;;
+    p) preferred_launcher="${OPTARG}"
+       check_launcher "${preferred_launcher}"
+       ;;
+    *) exit 1
+       ;;
+  esac
+done
+
+# Check whether a command exists
+function command_exists() {
+  command -v "$1" &> /dev/null 2>&1
+}
+
+# systemctl required
+if ! command_exists systemctl ; then
+  exit 1
 fi
 
-if [ $monitor_mode = "ALL" ]; then
-        echo "ALL"
-        bash ~/.screenlayout/extended.sh
-elif [ $monitor_mode = "EXTERNAL" ]; then
-        echo "EXTERNAL"
-        bash ~/.screenlayout/external_only.sh
-elif [ $monitor_mode = "INTERNAL" ]; then
-        echo "INTERNAL"
-        bash ~/.screenlayout/internal_only.sh
-elif [ $monitor_mode = "CLONES" ]; then
-        echo "CLONES"
-        bash ~/.screenlayout/clones.sh
+# menu defined as an associative array
+typeset -A menu
+
+# Menu with keys/commands
+
+menu=(
+  [ Monitor]="bash ~/.screenlayout/monitor_only.sh"
+  [蠟 Salon]="bash ~/.screenlayout/salon_only.sh; pactl set-default-sink alsa_output.pci-0000_02_00.1.hdmi-stereo"
+  [ Clones]="bash ~/.screenlayout/clones.sh"
+  [ Quit]=""
+)
+
+menu_nrows=${#menu[@]}
+
+# Menu entries that may trigger a confirmation message
+menu_confirm="Monitors Headphones HDMI"
+
+launcher_exe=""
+launcher_options=""
+rofi_colors=""
+
+function prepare_launcher() {
+  if [[ "$1" == "rofi" ]]; then
+    rofi_colors=(-bc "${BORDER_COLOR}" -bg "${BG_COLOR}" -fg "${FG_COLOR}" \
+        -hlfg "${HLFG_COLOR}" -hlbg "${HLBG_COLOR}")
+    launcher_exe="rofi"
+    launcher_options=(-dmenu -i -l "${menu_nrows}" -p "${ROFI_TEXT}" \
+        "${rofi_colors}" "${ROFI_OPTIONS[@]}")
+  elif [[ "$1" == "zenity" ]]; then
+    launcher_exe="zenity"
+    launcher_options=(--list --title="${ZENITY_TITLE}" --text="${ZENITY_TEXT}" \
+        "${ZENITY_OPTIONS[@]}")
+  fi
+}
+
+for l in "${launcher_list[@]}"; do
+  if command_exists "${l}" ; then
+    prepare_launcher "${l}"
+    break
+  fi
+done
+
+# No launcher available
+if [[ -z "${launcher_exe}" ]]; then
+  exit 1
 fi
-echo "${monitor_mode}" > /tmp/monitor_mode.dat
+
+launcher=(${launcher_exe} "${launcher_options[@]}")
+selection="$(printf '%s\n' "${!menu[@]}" | sort | "${launcher[@]}")"
+
+function ask_confirmation() {
+  if [ "${launcher_exe}" == "rofi" ]; then
+    confirmed=$(echo -e "Yes\nNo" | rofi -dmenu -i -lines 2 -p "${selection}?" \
+      "${rofi_colors}" "${ROFI_OPTIONS[@]}")
+    [ "${confirmed}" == "Yes" ] && confirmed=0
+  elif [ "${launcher_exe}" == "zenity" ]; then
+    zenity --question --text "Are you sure you want to ${selection,,}?"
+    confirmed=$?
+  fi
+
+  if [ "${confirmed}" == 0 ]; then
+    i3-msg -q "exec --no-startup-id ${menu[${selection}]}"
+  fi
+}
+
+if [[ $? -eq 0 && ! -z ${selection} ]]; then
+  if [[ "${enable_confirmation}" = true && \
+        ${menu_confirm} =~ (^|[[:space:]])"${selection}"($|[[:space:]]) ]]; then
+    ask_confirmation
+  else
+    i3-msg -q "exec --no-startup-id ${menu[${selection}]}"
+  fi
+fi
