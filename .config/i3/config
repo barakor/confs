@@ -449,7 +449,7 @@ bindsym $mod+Ctrl+t exec --no-startup-id pkill picom
 # For modifications, it can be copied to ~/.config/picom/picom.conf or ~/.config/picom.conf
 # install picom package (yay -S picom)
 # start using default config 
-exec_always --no-startup-id picom -b
+exec_always --no-startup-id picom -b --vsync --unredir-if-possible
 #
 # for custom config:
 #exec_always --no-startup-id picom --config  ~/.config/picom.conf
@@ -478,7 +478,7 @@ exec --no-startup-id numlockx on
 # configure multiple keyboard layouts and hotkey to switch (Alt+CAPSLOCK in this example)
 #exec --no-startup-id setxkbmap -layout 'us,sk' -variant altgr-intl,qwerty -option 'grp:alt_caps_toggle'
 # Set the keymap to either Hebrew or English
-exec setxkbmap us,il -option 'grp:alt_shift_toggle' ; pkill -SIGRTMIN+12 i3blocks
+exec_always setxkbmap us,il -option 'grp:alt_shift_toggle' ; pkill -SIGRTMIN+12 i3blocks
 bindsym Mod1+shift exec setxkbmap us,il -option 'grp:alt_shift_toggle' ; pkill -SIGRTMIN+12 i3blocks
 
 # start conky:
@@ -490,7 +490,7 @@ exec --no-startup-id ~/.screenlayout/default.sh
 
 # set wallpaper
 # exec --no-startup-id sleep 2 && nitrogen --restore
-exec --no-startup-id sleep 1 && feh --bg-fill /home/barakor/.config/i3/wallpapers/samus_zapper.jpg
+exec_always --no-startup-id sleep 1 && feh --bg-fill /home/barakor/.config/i3/wallpapers/samus_zapper.jpg
 
 # set powersavings for display:
 exec --no-startup-id xset s 3600 dpms 3600 3600 3600
@@ -520,7 +520,7 @@ exec --no-startup-id dbus-launch dunst --config ~/.config/dunst/dunstrc
 # Autostart apps as you like
 #exec --no-startup-id sleep 2 && xfce4-terminal
 # exec --no-startup-id sleep 7 && firefox https://github.com/endeavouros-team/endeavouros-i3wm-setup/blob/main/force-knowledge.md
-#exec --no-startup-id sleep 3 && thunar
+exec --no-startup-id thunar --daemon
 
 ###############
 # system tray #
